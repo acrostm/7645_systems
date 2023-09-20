@@ -7,6 +7,7 @@
 #include<stdlib.h> /* For exit */
 #include<string.h> /* For memcpy */
 
+
 void swapIntegers(int* x, int* y)
 {
     int temp;
@@ -22,9 +23,15 @@ typedef struct
     char lastName[20];
 } Person;
 
-void swapPersons(
-    Person* firstPerson, 
-    Person* secondPerson)
+// struct Person
+// {
+//     char firstName[40];
+//     char lastName[40];
+// };
+
+// typedef struct Person Person;
+
+void swapPersons(Person* firstPerson, Person* secondPerson)
 {
     Person temp;
     
@@ -36,6 +43,12 @@ void swapPersons(
 void swap(void* first, void* second, size_t objectSize)
 {
     char* temp = (char *)malloc(objectSize);
+    
+    if (temp == NULL)
+    {
+        printf("Failed to allocate memory!\n");
+        exit(EXIT_FAILURE);
+    }
 
     memcpy(temp, first, objectSize);
     memcpy(first, second, objectSize);
@@ -88,6 +101,6 @@ int main()
     printf("first person = %s %s, ", firstPerson.firstName, firstPerson.lastName);
     printf("second person = %s %s\n", secondPerson.firstName, secondPerson.lastName);
   
-    exit(0);
+    exit(EXIT_SUCCESS);
 
 }
