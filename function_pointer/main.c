@@ -34,11 +34,11 @@ int main(int argc, char** argv)
 
     countOfStrings = argc - 1;
 
-    arrayOfStrings = (char**)malloc(countOfStrings*sizeof(char*));
+    arrayOfStrings = (char**)malloc(countOfStrings * sizeof(char*));
     for (index = 0; index < countOfStrings; index++)
     {
       arraySize = strlen(argv[index + 1]) + 1; /* strlen does not include the end of string character \0 */
-      arrayOfStrings[index] = (char*)malloc(arraySize*sizeof(char));
+      arrayOfStrings[index] = (char*)malloc(arraySize * sizeof(char));
       memcpy(arrayOfStrings[index], argv[index + 1], arraySize);
     }
 
