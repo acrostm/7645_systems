@@ -36,6 +36,15 @@ int main(int argc, char** argv)
             printf("I am the child process with id %d\n", getpid());
             printf("My parent's process ID is %d\n", getppid());
 
+            char* const argument[] = {"cc", "--version", NULL};
+
+            execv("/usr/bin/cc", argument);
+
+            /* the process should not go under this line
+             * show the error failed under this
+             */
+
+            printf("the execv() has failed, the child process is going to sleep for 5s\n");
             sleep(5);
 
             _exit(EXIT_SUCCESS);
