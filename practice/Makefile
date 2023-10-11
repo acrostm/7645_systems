@@ -10,4 +10,4 @@ showAllContents:
 	cc showAllContents.c -o showAllContents
 
 clean:
-	rm *.o *.out copy cat showAllContents
+	rm *.o *.out copy cat showAllContents prac2
