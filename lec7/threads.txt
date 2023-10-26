@@ -7,9 +7,6 @@
 volatile int globalVariable = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-#define TRUE 1
-#define FALSE 0
-
 void* producer(void* input)
 {
     int status;
