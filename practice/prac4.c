@@ -40,7 +40,7 @@ int main(int argc, char** argv)
             numRead = read(pipeDescriptor[0], message, 100);
             while(numRead > 0)
             {
-                printf("Child read \"%s\" from pipe\nSize of the message read is %d\n", message, numRead);
+                printf("Child read \"%s\" from pipe\nSize of the message read is %d\n", message, (unsigned int)strlen(message));
                 numRead = read(pipeDescriptor[0], message, 100);
             }
 
