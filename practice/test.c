@@ -1,28 +1,48 @@
-/* Practice set 4 Pipe and FIFO */
+/* Pipe test
+ * compiles as cc test.c -o pipe
+ * run as ./pipe <n1> <n2> <n3> <n4> <n5> ...
+ * the parent process should read and write one or more numbers to the pipe
+ * and the child process read the numbers and prints their sums
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <string.h>
 
+
 int main(int argc, char** argv)
 {
-    char message[100];
     int pipeDescriptor[2];
     int status;
-    pid_t childProcessId, childStatus;
+    int childProcessId, childStatus;
     int numRead, numWritten;
+    int sum = 0;
+    int numSize = argc - 1;
+    int* numbers = malloc(sizeof(int) * numSize);
 
-    strcpy(message, argv[1]);
-    /* Parent create the pipe */
+    if(argc < 2 || strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)
+    {
+        printf("Usage: ./pipe <n1> <n2> <n3> <n4> <n5> ...\n");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Convert command line arguments to integers */
+    for (int i = 0; i < numSize; i++)
+    {
+        numbers[i] = atoi(argv[i + 1]);
+    }
+
+    /* Parent must create pipe before creating the child process */
     status = pipe(pipeDescriptor);
     if (status == -1)
     {
         printf("Unable to create pipe!\n");
         exit(EXIT_FAILURE);
     }
-    
-    /* Create child */
+
+    /* Create the child process */
     childProcessId = fork();
     switch(childProcessId)
     {
@@ -37,11 +57,15 @@ int main(int argc, char** argv)
                 _exit(EXIT_FAILURE);
             }
 
-            numRead = read(pipeDescriptor[0], message, 100);
-            while(numRead > 0)
+            numRead = read(pipeDescriptor[0], numbers, sizeof(int) * numSize);
+            while (numRead > 0)
             {
-                printf("Child read \"%s\" from pipe\nSize of the message read is %d\n", message, numRead);
-                numRead = read(pipeDescriptor[0], message, 100);
+                for (int i = 0; i < numSize; i++)
+                {
+                    sum += numbers[i];
+                }
+                printf("%d\n", sum);
+                numRead = read(pipeDescriptor[0], numbers, sizeof(int) * numSize);
             }
 
             if (numRead == -1)
@@ -61,34 +85,35 @@ int main(int argc, char** argv)
 
         default:
             status = close(pipeDescriptor[0]);
-            if(status == -1)
+            if (status == -1)
             {
                 printf("Parent unable to close read descriptor!\n");
                 exit(EXIT_FAILURE);
             }
 
-            int size = strlen(message) + 1;
-            numWritten = write(pipeDescriptor[1], message, size);
-            if(numWritten < size)
+            for(int i = 0; i < numSize; i++)
             {
-                printf("Parent unable to write to pipe!\n");
-                exit(EXIT_FAILURE);
+                numWritten = write(pipeDescriptor[1], &numbers[i], sizeof(int));
+                if (numWritten < sizeof(int))
+                {
+                    printf("Parent unable to write to pipe!\n");
+                    exit(EXIT_FAILURE);
+                }
             }
 
             status = close(pipeDescriptor[1]);
-            if(status == -1)
+            if (status == -1)
             {
                 printf("Parent unable to close write descriptor!\n");
                 exit(EXIT_FAILURE);
             }
 
             wait(&childStatus);
-            if(childStatus == -1)
+            if (childStatus == -1)
             {
                 printf("Unable to wait for child process!\n");
                 exit(EXIT_FAILURE);
             }
-
             exit(EXIT_SUCCESS);
     }
 }
