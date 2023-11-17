@@ -1,7 +1,11 @@
+/* Compile using the -lrt option */
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>           /* For O_* constants */
+#include <sys/stat.h>        /* For mode constants */
 #include <mqueue.h>
-#include <fcntl.h>
+
 
 typedef struct
 {
@@ -9,67 +13,64 @@ typedef struct
     int count;
 } Person;
 
-int main(int argc, char **argv)
+int main(int argc, char* argv[])
 {
-    Person person;
-    int numRead;
+    int status, index, numRead;
     mqd_t messageQueueDescriptor;
     struct mq_attr attributes;
-    int status;
     unsigned priority;
+    Person person;
 
     messageQueueDescriptor = mq_open(
-        "/AwesomeMessageQueue",
-        O_RDONLY);
-    if (messageQueueDescriptor == (mqd_t)-1)
+        "/MyFirstMessageQueue",
+        O_RDONLY
+    );
+
+    if (messageQueueDescriptor == (mqd_t) -1)
     {
-        perror("Message queue creation");
+        printf("Failed to open message queue.\n");
         exit(EXIT_FAILURE);
     }
 
     status = mq_getattr(messageQueueDescriptor, &attributes);
-    if (status == -1)
-    {
-        perror("Message queue get attributes");
-        exit(EXIT_FAILURE);
-    }
-
-    printf("Maximum messages size:  %ld bytes\n", attributes.mq_msgsize);
-    printf("Maximum number of message: %ld\n", attributes.mq_maxmsg);
-    printf("Number of messages currently on queue: %ld\n", attributes.mq_curmsgs);
-
-    status = mq_open(
-        "/AwesomeMessageQueue",
-        O_RDONLY);
-    if (status == -1)
-    {
-        perror("Message queue creation");
-        exit(EXIT_FAILURE);
-    }
+    printf("Maximum size of a message = %ld.\n", attributes.mq_msgsize);
+    printf("Maximum number of messages = %ld.\n", attributes.mq_maxmsg);
+    printf("Current number of messages = %ld.\n", attributes.mq_curmsgs);
 
     numRead = mq_receive(
         messageQueueDescriptor,
-        (char *)&person,
+        (char*)&person,
         sizeof(Person),
-        &priority);
+        &priority
+    );
 
     while (numRead > 0)
     {
-        printf("Name: %s\n", person.name);
-        printf("Count: %d\n", person.count);
-        printf("Priority: %u\n", priority);
+        printf(
+            "Name = %s, count = %d, priority = %u.\n",
+            person.name,
+            person.count,
+            priority
+        );
+
+        numRead = mq_receive(
+            messageQueueDescriptor,
+            (char*)&person,
+            sizeof(Person),
+            &priority
+        );
     }
 
     if (numRead == -1)
     {
-        perror("Message queue receive");
+        printf("Failed to read from message queue.\n");
         exit(EXIT_FAILURE);
     }
-
+    
     status = mq_close(messageQueueDescriptor);
     if (status == -1)
     {
-        perror("Message queue close");
+        printf("Failed to close message queue.\n");
         exit(EXIT_FAILURE);
     }
 

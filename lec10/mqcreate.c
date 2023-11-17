@@ -1,37 +1,49 @@
+/* Compile using the -lrt option */
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>           /* For O_* constants */
+#include <sys/stat.h>        /* For mode constants */
 #include <mqueue.h>
-#include <fcntl.h>
-#include <sys/stat.h>
 
-typedef struct {
+
+typedef struct
+{
     char name[20];
     int count;
 } Person;
 
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
-    mqd_t messageQueueDescriptor;
     int status;
+    mqd_t messageQueueDescriptor;
     struct mq_attr attributes;
 
-    /* MAX size of a message */
+    /* Define the MAXIMUM size of a message */
     attributes.mq_msgsize = sizeof(Person);
     
-    /* MAX number of a message in the message queue */
+    /* Maximum number of messages the message queue can hold */
     attributes.mq_maxmsg = 5;
 
     messageQueueDescriptor = mq_open(
-        "/AwesomeMessageQueue",
+        "/MyFirstMessageQueue",
         O_CREAT,
-        S_IRUSR | S_IWUSR | S_IRGRP,
+        S_IRUSR | S_IWUSR,
         &attributes
     );
 
-    if (messageQueueDescriptor == (mqd_t) -1) {
-        perror("Message queue creation");
+    if (messageQueueDescriptor == (mqd_t) -1)
+    {
+        printf("Failed to create message queue.\n");
         exit(EXIT_FAILURE);
     }
 
-    return 0;
+    status = mq_close(messageQueueDescriptor);
+    if (status == -1)
+    {
+        printf("Failed to close message queue.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    exit(EXIT_SUCCESS);
 }
