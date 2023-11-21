@@ -47,5 +47,6 @@ void removeResponseFifo(void)
 
 int main(int argc, char** argv)
 {
-    
+    char inputString[100] = argv[1];
+
 }

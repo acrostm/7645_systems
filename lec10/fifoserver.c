@@ -30,7 +30,7 @@ typedef struct
 /* Maximum size of response FIFO name */
 #define MAX_LENGTH 100
 
-/* multi thread must has access to the nex tticket number at the same time */
+/* multi thread must has access to the next ticket number at the same time */
 volatile unsigned nextTicket = 1;
 
 /* mutex */

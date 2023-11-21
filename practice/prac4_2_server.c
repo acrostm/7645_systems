@@ -54,7 +54,6 @@ void handleSignal(int)
 
 int main(int argc, char* argv[])
 {
-    char input[100] = argv[1];
     Request req;
     Response res;
     
