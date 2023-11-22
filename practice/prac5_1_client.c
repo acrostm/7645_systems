@@ -1,23 +1,24 @@
-/* The client sending string to the FIFO and to the server to transform it */
+/* The client randomly create 10 double digits to the FIFO and to the server */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 /* Maximum size of response FIFO name */
 #define MAX_LENGTH 100
 
-typedef struct 
+typedef struct
 {
     pid_t clientId;
-    char inputString[MAX_LENGTH];
+    double inputArray[10];
 } Request;
 
-typedef struct 
+typedef struct
 {
-    char outputString[MAX_LENGTH];
+    double average;
 } Response;
 
 /* define the FIFO name */
@@ -29,10 +30,10 @@ void removeResponseFifo(void)
     int status;
     char responseFifoName[MAX_LENGTH];
     snprintf(
-        responseFifoName,
-        MAX_LENGTH,
-        RESPONSE_FIFO_TEMPLATE,
-        getpid()
+            responseFifoName,
+            MAX_LENGTH,
+            RESPONSE_FIFO_TEMPLATE,
+            getpid()
     );
 
     status = unlink(responseFifoName);
@@ -45,7 +46,6 @@ void removeResponseFifo(void)
 
 int main(int argc, char** argv)
 {
-    char inputString[MAX_LENGTH];
     int status;
     int writeDescriptor, readDescriptor;
     int numRead, numWritten;
@@ -62,33 +62,33 @@ int main(int argc, char** argv)
     }
 
     /* Check command line parameters */
-    if(argc != 2 || strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)
+    if(argc != 1 || strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)
     {
-        printf("Usage: %s <string>\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
-
-    strcpy(inputString, argv[1]);
-    if(strlen(inputString) < 1)
-    {
-        printf("Input string invalid.\n");
+        printf("Usage: %s\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     req.clientId = getpid();
-    strcpy(req.inputString, inputString);
+    srand(time(NULL));
+    for(int i = 0; i < 10; i++)
+    {
+        double randomValue = (double)rand() / (double)RAND_MAX;
+        req.inputArray[i] = randomValue;
+        printf("Input floats: %lf\t", req.inputArray[i]);
+    }
+
 
     snprintf(
             responseFifoName,
             MAX_LENGTH,
             RESPONSE_FIFO_TEMPLATE,
             req.clientId
-            );
+    );
 
     status = mkfifo(
             responseFifoName,
             S_IRUSR | S_IWUSR | S_IWGRP
-            );
+    );
     if(status == -1)
     {
         printf("Client could not create FIFO %s\n", responseFifoName);
@@ -142,8 +142,10 @@ int main(int argc, char** argv)
         exit(EXIT_FAILURE);
     }
 
-    printf("Input string: %s\t", req.inputString);
-    printf("Output string: %s\n", res.outputString);
+    for (int i = 0; i < 10; ++i) {
+        printf("Input floats: %lf\t", req.inputArray[i]);
+    }
+    printf("Output average: %lf\n", res.average);
 
     exit(EXIT_SUCCESS);
 

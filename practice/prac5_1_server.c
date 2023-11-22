@@ -1,4 +1,4 @@
-/* The server of FIFO, take the string from client and transform into Capital */
+/* The server of FIFO, take the double array from client and calculate the average number */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -15,12 +15,12 @@
 typedef struct
 {
     pid_t clientId;
-    char inputString[MAX_LENGTH];
+    double inputArray[10];
 } Request;
 
 typedef struct
 {
-    char outputString[MAX_LENGTH];
+    double average;
 } Response;
 
 /* define the FIFO name */
@@ -62,7 +62,7 @@ void* transformString(void* ptrToRequest)
     printf(
             "Getting string from client#%d: %s \n",
             req.clientId, req.inputString
-            );
+    );
 
     status = pthread_mutex_lock(&mutex);
     if(status != 0)
@@ -71,10 +71,10 @@ void* transformString(void* ptrToRequest)
         exit(EXIT_FAILURE);
     }
 
-    for(int i = 0; i < strlen(req.inputString); i++)
-    {
-        res.outputString[i] = toupper(req.inputString[i]);
-    }
+//    for(int i = 0; i < strlen(req.inputString); i++)
+//    {
+//        res.outputString[i] = toupper(req.inputString[i]);
+//    }
 
     status = pthread_mutex_unlock(&mutex);
     if(status != 0)
@@ -88,7 +88,7 @@ void* transformString(void* ptrToRequest)
             MAX_LENGTH,
             RESPONSE_FIFO_TEMPLATE,
             req.clientId
-            );
+    );
 
     writeDescriptor = open(responseFifoName, O_WRONLY);
     if(writeDescriptor == -1)
@@ -101,7 +101,7 @@ void* transformString(void* ptrToRequest)
             writeDescriptor,
             &res,
             sizeof(Response)
-            );
+    );
     if (numWritten < sizeof(Response))
     {
         printf("FIFO %s has partial write issue\n", responseFifoName);
@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
     status = mkfifo(
             SERVER_FIFO_NAME,
             S_IRUSR | S_IWUSR | S_IWGRP
-            );
+    );
     if (status == -1)
     {
         printf("Could not create FIFO %s\n", SERVER_FIFO_NAME);
@@ -217,5 +217,5 @@ int main(int argc, char* argv[])
     }
 
     exit(EXIT_SUCCESS);
-    
+
 }
