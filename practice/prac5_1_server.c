@@ -60,8 +60,8 @@ void* transformString(void* ptrToRequest)
     Request req = *(Request *)ptrToRequest;
 
     printf(
-            "Getting string from client#%d: %s \n",
-            req.clientId, req.inputString
+            "Getting array from client#%d: \n",
+            req.clientId
     );
 
     status = pthread_mutex_lock(&mutex);
@@ -71,11 +71,12 @@ void* transformString(void* ptrToRequest)
         exit(EXIT_FAILURE);
     }
 
-//    for(int i = 0; i < strlen(req.inputString); i++)
-//    {
-//        res.outputString[i] = toupper(req.inputString[i]);
-//    }
-
+    for(int i = 0; i < 10; i++)
+    {
+        res.average += req.inputArray[i];
+    }
+    res.average /= 10;
+    
     status = pthread_mutex_unlock(&mutex);
     if(status != 0)
     {

@@ -62,7 +62,7 @@ int main(int argc, char** argv)
     }
 
     /* Check command line parameters */
-    if(argc != 1 || strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)
+    if(argc > 1 || strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)
     {
         printf("Usage: %s\n", argv[0]);
         exit(EXIT_FAILURE);
