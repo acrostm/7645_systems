@@ -6,6 +6,7 @@
 #include <unistd.h>    /* For ftruncate and close */
 #include <sys/types.h> /* For ftruncate */
 #include <semaphore.h> /* For using semaphores */
+#include <string.h>    /* For strcmp */
 
 int main(int argc, char *argv[])
 {
