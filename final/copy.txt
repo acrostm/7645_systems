@@ -27,43 +27,24 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    // Check if destination file already exists
     if (access(argv[2], F_OK) != -1)
     {
-        fprintf(stderr, "Destination file already exists.\n");
+        printf("Destination file already exists.\n");
         close(sourceFd);
         exit(EXIT_FAILURE);
     }
 
-    if (argc == 4 && (strcmp(argv[3], "-a") == 0 || strcmp(argv[3], "--append") == 0))
-    {
-        destinationFd = open(
-            argv[2],
-            O_CREAT | O_WRONLY | O_APPEND,
-            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH
-        );
-    }
-    else
-    {
-        destinationFd = open(
-            argv[2],
-            O_CREAT | O_EXCL | O_WRONLY | O_TRUNC,
-            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH
-        );
-    }
+    destinationFd = open(
+        argv[2],
+        O_CREAT | O_EXCL | O_WRONLY | O_TRUNC,
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH
+    );
 
     if (destinationFd == -1)
     {
-        if (access(argv[2], F_OK) != -1)
-        {
-            perror("Failed to open destination file");
-            close(sourceFd);
-            exit(EXIT_FAILURE);
-        } else {
-            perror("Failed to create destination file");
-            close(sourceFd);
-            exit(EXIT_FAILURE);
-        }
+        perror("Failed to create destination file");
+        close(sourceFd);
+        exit(EXIT_FAILURE);
     }
 
     int numRead, numWritten;
