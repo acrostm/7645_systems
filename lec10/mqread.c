@@ -74,5 +74,12 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
+    status = mq_unlink("/MyFirstMessageQueue");
+    if (status == -1)
+    {
+        printf("Failed to unlink message queue.\n");
+        exit(EXIT_FAILURE);
+    }
+
     exit(EXIT_SUCCESS);
 }
