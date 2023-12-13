@@ -42,21 +42,11 @@ int main(int argc, char **argv)
         perror("mq_getattr");
         exit(EXIT_FAILURE);
     }
+    // printf("Maximum size of a message = %ld.\n", attributes.mq_msgsize);
+    // printf("Maximum number of messages = %ld.\n", attributes.mq_maxmsg);
 
-    numRead = mq_receive(
-        messageQueuDescriptor,
-        (char *)&numbers,
-        attributes.mq_msgsize,
-        &numbers.priority
-    );
-
-    while (numRead > 0)
+    while (attributes.mq_curmsgs > 0)
     {
-        printf(
-            "%d\n",
-            numbers.number
-        );
-
         numRead = mq_receive(
             messageQueuDescriptor,
             (char *)&numbers,
@@ -65,10 +55,11 @@ int main(int argc, char **argv)
         );
 
         mq_getattr(messageQueuDescriptor, &attributes);
-        if (attributes.mq_curmsgs == 0)
-        {
-            break;
-        }
+        
+        printf(
+            "%d\n",
+            numbers.number
+        );
     }
 
     if (numRead == -1)

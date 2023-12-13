@@ -16,6 +16,7 @@ int main(int argc, char* argv[])
 {
     int status;
     mqd_t messageQueueDescriptor;
+    struct mq_attr attributes;
     int index;
 
     Person persons[5] = {
@@ -28,7 +29,9 @@ int main(int argc, char* argv[])
     
     messageQueueDescriptor = mq_open(
         "/MyFirstMessageQueue",
-        O_WRONLY
+        O_CREAT | O_WRONLY,
+        S_IRUSR | S_IWUSR,
+        &attributes
     );
 
     if (messageQueueDescriptor == (mqd_t) -1)
